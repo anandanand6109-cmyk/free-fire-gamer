@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Wallet | FREE FIRE GAMER</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:22px 14px;background:linear-gradient(135deg,#080808,#25102e,#111);color:white;font-family:Arial,sans-serif}
+.container{max-width:520px;margin:auto}
+h1{text-align:center;color:#ff7900}
+.card{background:#19151f;border:1px solid #7134a0;border-radius:16px;padding:20px;margin:18px 0;box-shadow:0 0 18px #8b2be533}
+.balance{font-size:36px;color:#ff8b19;font-weight:bold;margin:12px 0}
+.small{font-size:13px;color:#bbb;line-height:1.6}
+button{border:0;border-radius:9px;padding:13px;background:#7134a0;color:white;font-weight:bold;cursor:pointer;margin-top:10px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.amounts{display:flex;gap:9px}
+.amounts button{flex:1}
+.amounts button.selected{background:#ff7900}
+input{width:100%;padding:13px;margin:9px 0;border-radius:8px;border:1px solid #777;background:#100e13;color:white}
+.qr{max-width:320px;margin:15px auto;background:#100e13;border:1px solid #7134a0;border-radius:12px;padding:12px;text-align:center}
+.qr img{width:100%;height:auto;display:block;border-radius:8px;background:white}
+.message{margin-top:12px}
+.item{padding:12px 0;border-bottom:1px solid #39313e}
+a{color:#ff9b35;text-decoration:none}
+.full{width:100%;background:#ff7900}
+.error{color:#ff5555}
+.success{color:#39e66b}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🔥 MY WALLET</h1>
+
+<div class="card">
+  <div class="small">POINTS BALANCE</div>
+  <div class="balance" id="balance">0 Points</div>
+  <p class="small">Your tournament points balance.</p>
+</div>
+
+<div class="card">
+  <h3>💰 Wallet</h3>
+  <p class="small">Select an amount or enter your own amount. Minimum ₹50.</p>
+
+  <div class="amounts">
+    <button type="button" data-amount="50">₹50</button>
+    <button type="button" data-amount="80">₹80</button>
+    <button type="button" data-amount="100">₹100</button>
+  </div>
+
+  <input type="number" id="depositAmount"
+         placeholder="Enter amount (Minimum ₹50)"
+         min="50" step="1">
+  <div id="amountError" class="message error"></div>
+
+  <h3>Payment QR</h3>
+  <div class="qr">
+    <img id="currentQR" src="/upi1.jpg" alt="QR image">
+    <p class="small">QR image</p>
+  </div>
+  <div id="qrMessage" class="message"></div>
+
+  <h3>Enter UTR Number</h3>
+  <input type="text" id="utrNumber"
+         placeholder="Enter 12-digit UTR number"
+         maxlength="12" inputmode="numeric">
+
+  <button type="button" class="full" id="submitUTR">Submit UTR</button>
+  <div id="utrMessage" class="message"></div>
+</div>
+
+<div class="card">
+  <h3>📜 Transaction History</h3>
+  <div id="history" class="small">Loading...</div>
+  <button class="full" type="button" id="refreshButton">Refresh Wallet</button>
+</div>
+
+<p style="text-align:center">
+  <a href="/tournament.html">← Back to Tournaments</a>
+</p>
+<p class="small" style="text-align:center">FREE FIRE GAMER</p>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const token = localStorage.getItem("ffTournamentToken") || "";
+
+/* Amount buttons */
+document.querySelectorAll("[data-amount]").forEach(button => {
+  button.addEventListener("click", () => {
+    $("depositAmount").value = button.dataset.amount;
+    $("amountError").textContent = "";
+
+    document.querySelectorAll("[data-amount]").forEach(b => {
+      b.classList.remove("selected");
+    });
+    button.classList.add("selected");
+  });
+});
+
+/* Manual amount entry */
+$("depositAmount").addEventListener("input", () => {
+  $("amountError").textContent = "";
+
+  document.querySelectorAll("[data-amount]").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      button.dataset.amount === $("depositAmount").value
+    );
+  });
+});
+
+/* QR changes every four hours */
+const qrImages = [
+  "/upi1.jpg", "/upi2.jpg", "/upi3.jpg",
+  "/upi4.jpg", "/upi5.jpg", "/upi6.jpg"
+];
+
+const fourHours = 4 * 60 * 60 * 1000;
+const currentQR = $("currentQR");
+let qrTryCount = 0;
+
+function updateQR() {
+  const index = Math.floor(Date.now() / fourHours) % qrImages.length;
+  const selectedQR = qrImages[index];
+
+  if (currentQR.dataset.current !== selectedQR) {
+    currentQR.dataset.current = selectedQR;
+    qrTryCount = 0;
+    currentQR.src = selectedQR;
+  }
+}
+
+currentQR.onerror = function() {
+  qrTryCount++;
+  if (qrTryCount < qrImages.length) {
+    const index = Math.floor(Date.now() / fourHours) % qrImages.length;
+    currentQR.src = qrImages[(index + qrTryCount) % qrImages.length];
+  } else {
+    $("qrMessage").textContent = "QR images not found. Check public folder.";
+  }
+};
+currentQR.onload = () => $("qrMessage").textContent = "";
+
+updateQR();
+setInterval(updateQR, 60 * 1000);
+
+/* Submit Your reference for admin review */
+$("submitUTR").addEventListener("click", async () => {
+  const amountText = $("depositAmount").value.trim();
+  const amount = Number(amountText);
+  const utr = $("utrNumber").value.trim();
+  const message = $("utrMessage");
+  const button = $("submitUTR");
+
+  $("amountError").textContent = "";
+
+  if (!amountText || !Number.isInteger(amount) || amount < 50) {
+    $("amountError").textContent =
+      "Please enter a valid amount. Minimum ₹50.";
+    $("depositAmount").focus();
+    return;
+  }
+
+  if (amount > 100000) {
+    $("amountError").textContent = "Maximum amount is ₹100000.";
+    return;
+  }
+
+  if (!token) {
+    message.className = "message error";
+    message.textContent = "Please login first.";
+    return;
+  }
+
+  if (!/^\d{12}$/.test(utr)) {
+    message.className = "message error";
+    message.textContent = "Please enter a valid 12-digit UTR number.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Submitting...";
+
+  try {
+    const response = await fetch("/api/wallet/deposit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({amount, utr})
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Submission failed.");
+
+    message.className = "message success";
+    message.textContent =
+      "Demo request submitted! Please wait for admin review. Review may take 5–10 minutes.";
+
+    $("utrNumber").value = "";
+    $("depositAmount").value = "";
+
+    document.querySelectorAll("[data-amount]").forEach(b => {
+      b.classList.remove("selected");
+    });
+
+    await loadWallet();
+
+  } catch (error) {
+    message.className = "message error";
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit UTR";
+  }
+});
+
+/* Wallet balance and history */
+async function loadWallet() {
+  if (!token) {
+    $("balance").textContent = "Login required";
+    $("history").textContent = "Please login to view your wallet.";
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/wallet", {
+      headers: {"Authorization": "Bearer " + token}
+    });
+    const result = await response.json();
+
+    if (!response.ok) throw new Error(result.error || "Unable to load wallet.");
+
+    $("balance").textContent = (result.balance ?? 0) + " Points";
+    const history = $("history");
+    history.replaceChildren();
+
+    const requests = result.requests || [];
+    if (!requests.length) {
+      history.textContent = "No requests yet.";
+      return;
+    }
+
+    requests.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.textContent =
+        (item.type || "Request") + " — " +
+        (item.amount || 0) + " — " +
+        (item.status || "Pending");
+      history.appendChild(div);
+    });
+  } catch (error) {
+    $("history").textContent = error.message;
+  }
+}
+
+$("refreshButton").addEventListener("click", loadWallet);
+loadWallet();
+</script>
+</body>
+</html>

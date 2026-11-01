@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FREE FIRE GAMER | Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#25305b,#090d1b 65%);color:#f5f7ff;font-family:Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:35px 18px}
+.brand{color:#35e7ff;font-size:14px;font-weight:bold;letter-spacing:2px}
+h1{font-size:clamp(30px,5vw,44px);margin:12px 0}
+h2{margin-top:0}
+p{color:#aebbd8;line-height:1.6}
+.panel{background:#151d33;border:1px solid #ffffff20;border-radius:18px;padding:24px;margin-top:22px;box-shadow:0 15px 50px #0004}
+input{width:100%;padding:14px;margin:12px 0;border-radius:10px;border:1px solid #394565;background:#0b1020;color:white;font-size:16px}
+button{padding:11px 15px;border:0;border-radius:9px;background:linear-gradient(90deg,#ff8a00,#ff3c87);color:white;font-weight:bold;cursor:pointer;margin:4px}
+button.secondary{background:#263452}
+button.reject{background:#a52a45}
+button:disabled{opacity:.5;cursor:not-allowed}
+.status{margin-top:14px;color:#35e7ff;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.stat{background:#0e1529;padding:16px;border-radius:12px;border:1px solid #ffffff12}
+.stat strong{display:block;font-size:25px;color:#4dffb2;margin-top:7px}
+.tablewrap{overflow-x:auto;margin-top:18px}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #ffffff18;font-size:13px;vertical-align:top}
+th{color:#35e7ff}
+.hidden{display:none}
+.small{font-size:12px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.tabs button{background:#263452}
+.tabs button.active{background:#ff7900}
+.request{background:#0e1529;border:1px solid #ffffff18;border-radius:12px;padding:16px;margin:14px 0;overflow-wrap:anywhere}
+.request p{margin:7px 0}
+.tag{color:#4dffb2;font-weight:bold}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.panel{padding:17px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">🔥 FREE FIRE GAMER</div>
+  <h1>Admin <span style="color:#35e7ff">Dashboard</span></h1>
+  <p>Manage tournament registrations and demo wallet requests.</p>
+
+  <section class="panel" id="loginPanel">
+    <h2>🔐 Admin Login</h2>
+    <p>Enter the ADMIN_PASSWORD configured in your server .env file.</p>
+    <form id="loginForm">
+      <input id="password" type="password" required autocomplete="current-password" placeholder="Enter admin password">
+      <button type="submit" id="loginBtn">Login to Dashboard</button>
+    </form>
+    <div class="status" id="loginStatus"></div>
+  </section>
+
+  <section class="hidden" id="dashboard">
+
+    <div class="panel">
+      <h2>📊 Tournament Registrations</h2>
+      <button id="refreshBtn">Refresh Registrations</button>
+      <button class="secondary" id="logoutBtn">Logout</button>
+
+      <div class="stats">
+        <div class="stat">Total Registrations<strong id="total">0</strong></div>
+        <div class="stat">Paid<strong id="paid">0</strong></div>
+        <div class="stat">Pending / Demo<strong id="pending">0</strong></div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Game UID</th>
+              <th>Mode</th>
+              <th>Players</th>
+              <th>Mobile</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="5">No data loaded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="status" id="registrationStatus"></div>
+    </div>
+
+    <div class="panel">
+      <h2>💰 Wallet Requests</h2>
+      <div class="tabs">
+        <button class="active" data-tab="all">All Requests</button>
+        <button data-tab="deposit">Deposits</button>
+        <button data-tab="withdrawal">Withdrawals</button>
+      </div>
+      <button id="refreshWalletBtn">Refresh Wallet Requests</button>
+      <div class="status" id="walletStatus"></div>
+      <div id="walletRequests"></div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+(() => {
+  let adminToken = "";
+  let allRequests = [];
+  let currentTab = "all";
+
+  const $ = id => document.getElementById(id);
+
+  async function api(url, options = {}) {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken,
+        ...(options.headers || {})
+      }
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(result.error || "Request failed.");
+    }
+
+    return result;
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const password = $("password").value;
+    $("loginBtn").disabled = true;
+    $("loginStatus").textContent = "Checking login...";
+
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password})
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Login failed.");
+      }
+
+      adminToken = result.token;
+      $("password").value = "";
+      $("loginPanel").classList.add("hidden");
+      $("dashboard").classList.remove("hidden");
+
+      await loadRegistrations();
+      await loadWalletRequests();
+
+    } catch (error) {
+      $("loginStatus").textContent = error.message;
+    } finally {
+      $("loginBtn").disabled = false;
+    }
+  });
+
+  async function loadRegistrations() {
+    $("registrationStatus").textContent = "Loading registrations...";
+    $("refreshBtn").disabled = true;
+
+    try {
+      const result = await api("/api/admin/registrations");
+      const registrations = result.registrations || [];
+
+      $("total").textContent = registrations.length;
+      $("paid").textContent =
+        registrations.filter(r => r.status === "PAID").length;
+      $("pending").textContent =
+        registrations.filter(r => r.status !== "PAID").length;
+
+      const tbody = $("rows");
+      tbody.replaceChildren();
+
+      if (!registrations.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 5;
+        td.textContent = "No tournament registrations found.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+
+      registrations.forEach(r => {
+        const tr = document.createElement("tr");
+        const values = [
+          r.gameUid || r.uid || "",
+          r.mode || "",
+          Array.isArray(r.playerNames) ? r.playerNames.join(", ") : "",
+          r.phone || "",
+          r.status || ""
+        ];
+
+        values.forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = String(value);
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      $("registrationStatus").textContent = "Registrations loaded.";
+    } catch (error) {
+      $("registrationStatus").textContent = error.message;
+    } finally {
+      $("refreshBtn").disabled = false;
+    }
+  }
+
+  async function loadWalletRequests() {
+    $("walletStatus").textContent = "Loading wallet requests...";
+    $("refreshWalletBtn").disabled = true;
+
+    try {
+      const result = await api("/api/admin/wallet-requests");
+      allRequests = result.requests || [];
+      renderRequests();
+      $("walletStatus").textContent = "Wallet requests loaded.";
+    } catch (error) {
+      $("walletStatus").textContent = error.message;
+    } finally {
+      $("refreshWalletBtn").disabled = false;
+    }
+  }
+
+  function addLine(parent, label, value) {
+    const p = document.createElement("p");
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode(String(value || "-")));
+    parent.appendChild(p);
+  }
+
+  function renderRequests() {
+    const box = $("walletRequests");
+    box.replaceChildren();
+
+    const filtered = allRequests.filter(request =>
+      currentTab === "all" || request.type === currentTab
+    );
+
+    if (!filtered.length) {
+      const p = document.createElement("p");
+      p.textContent = "No wallet requests found.";
+      box.appendChild(p);
+      return;
+    }
+
+    filtered.forEach(request => {
+      const card = document.createElement("div");
+      card.className = "request";
+
+      const title = document.createElement("h3");
+      title.textContent =
+        (request.type === "deposit" ? "💰 Deposit" : "💸 Withdrawal") +
+        " — ₹" + request.amount;
+      card.appendChild(title);
+
+      addLine(card, "Mobile", request.phone);
+      addLine(card, "Status", request.status);
+      addLine(card, "Request ID", request.id);
+      addLine(card, "Date", request.createdAt);
+
+      if (request.type === "deposit") {
+        addLine(card, "UTR Number", request.utr);
+        addLine(card, "Screenshot filename", request.screenshotName);
+      }
+
+      if (request.type === "withdrawal") {
+        addLine(card, "Account Holder", request.accountName);
+        addLine(card, "Account Number", request.accountNumber);
+        addLine(card, "IFSC", request.ifsc);
+        addLine(card, "UPI ID", request.upiId);
+      }
+
+      if (request.adminNote) {
+        addLine(card, "Admin Note", request.adminNote);
+      }
+
+      const status = document.createElement("p");
+      status.className = "tag";
+      status.textContent = "Status: " + request.status.toUpperCase();
+      card.appendChild(status);
+
+      if (request.status === "pending") {
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const approve = document.createElement("button");
+        approve.textContent = "Approve";
+
+        const reject = document.createElement("button");
+        reject.textContent = "Reject";
+        reject.className = "reject";
+
+        approve.addEventListener("click", () =>
+          reviewRequest(request.id, "approve", approve, reject)
+        );
+
+        reject.addEventListener("click", () =>
+          reviewRequest(request.id, "reject", approve, reject)
+        );
+
+        actions.appendChild(approve);
+        actions.appendChild(reject);
+        card.appendChild(actions);
+      }
+
+      box.appendChild(card);
+    });
+  }
+
+  async function reviewRequest(id, action, approveButton, rejectButton) {
+    const note = prompt("Optional admin note:", "");
+
+    if (note === null) return;
+
+    if (!confirm("Are you sure you want to " + action + " this request?")) {
+      return;
+    }
+
+    approveButton.disabled = true;
+    rejectButton.disabled = true;
+    $("walletStatus").textContent = "Updating request...";
+
+    try {
+      const result = await api(
+        "/api/admin/wallet-requests/" + encodeURIComponent(id) + "/review",
+        {
+          method: "POST",
+          body: JSON.stringify({action, note})
+        }
+      );
+
+      $("walletStatus").textContent = result.message;
+      await loadWalletRequests();
+
+    } catch (error) {
+      $("walletStatus").textContent = error.message;
+      approveButton.disabled = false;
+      rejectButton.disabled = false;
+    }
+  }
+
+  document.querySelectorAll("[data-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+      currentTab = button.dataset.tab;
+
+      document.querySelectorAll("[data-tab]").forEach(btn =>
+        btn.classList.remove("active")
+      );
+
+      button.classList.add("active");
+      renderRequests();
+    });
+  });
+
+  $("refreshBtn").addEventListener("click", loadRegistrations);
+  $("refreshWalletBtn").addEventListener("click", loadWalletRequests);
+
+  $("logoutBtn").addEventListener("click", () => {
+    adminToken = "";
+    allRequests = [];
+    $("dashboard").classList.add("hidden");
+    $("loginPanel").classList.remove("hidden");
+    $("loginStatus").textContent = "Logged out.";
+    $("walletRequests").replaceChildren();
+    $("rows").replaceChildren();
+    $("total").textContent = "0";
+    $("paid").textContent = "0";
+    $("pending").textContent = "0";
+  });
+})();
+</script>
+</body>
+</html>

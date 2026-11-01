@@ -1,0 +1,577 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Tournaments | Free Fire Tournaments</title>
+
+<style>
+:root {
+  --bg:#080b18;
+  --panel:#131a30;
+  --text:#f5f7ff;
+  --muted:#aab4d0;
+  --orange:#ff8a00;
+  --pink:#ff3c87;
+  --cyan:#35e7ff;
+  --green:#4dffb2;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+  radial-gradient(ellipse at top right,#30205c 0,transparent 40%),
+  radial-gradient(ellipse at top left,#102e48 0,transparent 35%),var(--bg);
+  color:var(--text);font-family:Arial,sans-serif;
+}
+button,a{font:inherit}
+a{color:inherit;text-decoration:none}
+header{
+  position:sticky;top:0;z-index:5;
+  background:#080b18eF;border-bottom:1px solid #ffffff18;
+  backdrop-filter:blur(14px);
+}
+.nav{
+  max-width:1200px;margin:auto;padding:16px 20px;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+.logo{font-size:22px;font-weight:900;color:var(--cyan)}
+.logo span{color:var(--orange)}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.navlinks a:hover{color:var(--cyan)}
+.wrap{max-width:1200px;margin:auto;padding:22px 20px 60px}
+.hero{
+  padding:55px 28px;border:1px solid #ffffff20;border-radius:26px;
+  background:linear-gradient(115deg,#17264c,#35154d 65%,#642238);
+  overflow:hidden;position:relative;
+}
+.hero:after{
+  content:"FF";position:absolute;right:20px;top:-45px;
+  font-size:220px;font-weight:1000;color:#ffffff0a;pointer-events:none;
+}
+.tag{
+  display:inline-block;padding:7px 12px;border-radius:30px;
+  background:#35e7ff18;border:1px solid #35e7ff66;color:var(--cyan);
+  font-size:12px;font-weight:bold;letter-spacing:1px;
+}
+h1{font-size:clamp(34px,6vw,64px);margin:18px 0 12px;line-height:1.04}
+.gradient{
+  background:linear-gradient(90deg,var(--orange),var(--pink),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{max-width:650px;color:#d1d9ef;line-height:1.7}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
+.btn{
+  border:0;border-radius:10px;padding:12px 17px;cursor:pointer;
+  font-weight:bold;transition:.2s;display:inline-block;text-align:center;
+}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.primary{background:linear-gradient(90deg,var(--orange),var(--pink));color:white}
+.secondary{background:#ffffff12;border:1px solid #ffffff35;color:white}
+.cyan{background:var(--cyan);color:#07101d}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:22px 0 36px}
+.stat,.card,.rules,.notice{
+  background:linear-gradient(145deg,#171e35,#101526);
+  border:1px solid #ffffff15;border-radius:17px;padding:19px;
+}
+.stat strong{font-size:25px;display:block;color:var(--cyan)}
+.stat span{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+section{margin-top:38px;scroll-margin-top:85px}
+.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:15px;flex-wrap:wrap;margin-bottom:17px}
+h2{font-size:27px;margin:0 0 7px}
+.sub{color:var(--muted);font-size:14px;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{padding:0;overflow:hidden}
+.cardtop{padding:23px;background:linear-gradient(135deg,#29204d,#182f4a);position:relative}
+.cardtop.pink{background:linear-gradient(135deg,#571d48,#302052)}
+.cardtop.orange{background:linear-gradient(135deg,#60301c,#38234d)}
+.emoji{font-size:37px}
+.mode{font-size:11px;letter-spacing:1.5px;color:var(--cyan);font-weight:bold;margin-top:14px}
+.card h3{font-size:23px;margin:7px 0}
+.cardbody{padding:19px}
+.pricebox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.pricebox div{background:#ffffff08;padding:12px;border-radius:10px}
+.pricebox small{color:var(--muted);display:block;font-size:11px;margin-bottom:6px}
+.pricebox strong{font-size:21px;color:var(--green)}
+.details{font-size:13px;color:#c1cbe0;line-height:1.9}
+.card .btn{width:100%;margin-top:15px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.pill{border:1px solid #ffffff22;border-radius:30px;padding:8px 13px;background:#ffffff08;color:#dce5ff;cursor:pointer}
+.pill.active{background:var(--cyan);color:#07101d;border-color:var(--cyan);font-weight:bold}
+.mapgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mapcard{border:1px solid #ffffff20;border-radius:15px;padding:18px;background:linear-gradient(145deg,#1d2943,#121729)}
+.mapcard .mapemoji{font-size:31px}
+.mapcard h3{margin:12px 0 5px}
+.mapcard p{font-size:13px;color:var(--muted);line-height:1.6}
+.rulesgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rules h3{color:var(--cyan);margin-top:0}
+.rules li{color:#c6cfe2;line-height:1.75;margin-bottom:9px;font-size:14px}
+.round{
+  display:flex;gap:14px;padding:15px 0;border-bottom:1px solid #ffffff14;
+}
+.round:last-child{border-bottom:0}
+.number{
+  min-width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:#ff8a0020;color:var(--orange);font-weight:bold;
+}
+.round h3{margin:0 0 6px;font-size:16px}
+.round p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.mylist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.joined{background:#ffffff08;padding:15px;border-radius:12px;border:1px solid #ffffff16}
+.joined strong{display:block;margin-bottom:6px}
+.joined span{color:var(--muted);font-size:13px}
+.empty{color:var(--muted);padding:18px;border:1px dashed #ffffff30;border-radius:12px}
+.notice{margin-top:18px;color:#d1daee;font-size:13px;line-height:1.7}
+footer{border-top:1px solid #ffffff15;padding:28px 20px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172640;border:1px solid var(--cyan);padding:13px 18px;border-radius:12px;display:none;z-index:10;max-width:90%;text-align:center}
+@media(max-width:850px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mapgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+ .wrap{padding:15px 13px 40px}
+ .hero{padding:35px 19px}
+ .nav{padding:13px}
+ .navlinks{gap:10px;font-size:12px}
+ .grid,.mapgrid,.rulesgrid,.mylist{grid-template-columns:1fr}
+ .hero:after{font-size:130px;top:0}
+ h2{font-size:23px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <nav class="nav">
+    <a class="logo" href="#">🔥 FF <span>GAMER</span></a>
+    <div class="navlinks">
+      <a href="#tournaments">Tournaments</a>
+      <a href="#maps">Maps & Modes</a>
+      <a href="#rules">Rules</a>
+      <a href="#my">My Matches</a>
+      <a href="/wallet.html">💰 Wallet</a>
+      <a href="#" id="logout">Logout</a>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="tag">⚡ FREE FIRE COMMUNITY GAMERS</span>
+    <h1>ENTER THE <span class="gradient">BATTLE.</span><br>OWN THE COMMUNITY.</h1>
+    <p>Play with your friends, join tournaments, prove your skills and climb the leaderboard. Choose your mode and get ready for battle!</p>
+    <div class="actions">
+      <a class="btn primary" href="#tournaments">🔥 Explore Tournaments</a>
+      <a class="btn secondary" href="#rules">📜 Read Rules</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><strong>1v1</strong><span>Lone Wolf</span></div>
+    <div class="stat"><strong>2v2</strong><span>Duo Battle</span></div>
+    <div class="stat"><strong>50</strong><span>Players per demo room</span></div>
+    <div class="stat"><strong>3</strong><span>Game modes</span></div>
+  </div>
+
+  <section id="tournaments">
+    <div class="sectionhead">
+      <div>
+        <h2>🔥 Featured Tournaments</h2>
+        <div class="sub">Choose your battle. Join a tournament to save it to your dashboard.</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="cardtop pink">
+          <div class="emoji">🐺</div>
+          <div class="mode">LONE WOLF • 1 VS 1</div>
+          <h3>Lone Wolf Duel</h3>
+          <div class="sub">One player against one player.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee (display only)</small><strong>₹30</strong></div>
+            <div><small>Winner prize (display only)</small><strong>₹25</strong></div>
+          </div>
+          <div class="details">
+            👤 Players: 2<br>
+            🎮 Mode: Lone Wolf<br>
+            🏆 Format: 1v1 match
+          </div>
+          <button class="btn primary join" data-id="lonewolf">Join Tournament</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="cardtop orange">
+          <div class="emoji">⚔️</div>
+          <div class="mode">DUO • 2 VS 2</div>
+          <h3>Duo Clash</h3>
+          <div class="sub">Team up with a partner.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee (display only)</small><strong>₹50</strong></div>
+            <div><small>Winner prize (display only)</small><strong>₹40</strong></div>
+          </div>
+          <div class="details">
+            👥 Players: 4<br>
+            🎮 Mode: Duo Clash<br>
+            🏆 Format: 2v2 match
+          </div>
+          <button class="btn primary join" data-id="duo">Join Tournament</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="cardtop">
+          <div class="emoji">🪂</div>
+          <div class="mode">BATTLE ROYALE • SOLO</div>
+          <h3>Solo Survival</h3>
+          <div class="sub">Land, loot and survive.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee</small><strong>Free</strong></div>
+            <div><small>Prize</small><strong>Demo</strong></div>
+          </div>
+          <div class="details">
+            👤 Players: Up to 50 in demo<br>
+            🗺️ Full-map battle royale<br>
+            🏆 Advancement by placement and kills
+          </div>
+          <button class="btn primary join" data-id="solo">Join Tournament</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="cardtop pink">
+          <div class="emoji">👥</div>
+          <div class="mode">BATTLE ROYALE • DUO</div>
+          <h3>Duo Survival</h3>
+          <div class="sub">Two players. One team.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee</small><strong>Free</strong></div>
+            <div><small>Prize</small><strong>Demo</strong></div>
+          </div>
+          <div class="details">
+            👥 Teams of 2<br>
+            🗺️ Full-map battle royale<br>
+            🏆 Kill points and placement
+          </div>
+          <button class="btn primary join" data-id="duobr">Join Tournament</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="cardtop orange">
+          <div class="emoji">🛡️</div>
+          <div class="mode">BATTLE ROYALE • SQUAD</div>
+          <h3>Squad Championship</h3>
+          <div class="sub">Build a team and fight together.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee</small><strong>Free</strong></div>
+            <div><small>Prize</small><strong>Demo</strong></div>
+          </div>
+          <div class="details">
+            👥 4 players per team<br>
+            ➕ Optional substitute if allowed<br>
+            🏆 Group stages and finals
+          </div>
+          <button class="btn primary join" data-id="squad">Join Tournament</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="cardtop">
+          <div class="emoji">💥</div>
+          <div class="mode">CLASH SQUAD</div>
+          <h3>Clash Squad Finals</h3>
+          <div class="sub">Win the rounds. Become champion.</div>
+        </div>
+        <div class="cardbody">
+          <div class="pricebox">
+            <div><small>Entry fee</small><strong>Free</strong></div>
+            <div><small>Prize</small><strong>Demo</strong></div>
+          </div>
+          <div class="details">
+            🎮 Team-based matches<br>
+            🏆 Knockout format<br>
+            📋 Final rules announced by organizer
+          </div>
+          <button class="btn primary join" data-id="clash">Join Tournament</button>
+        </div>
+      </article>
+    </div>
+    <div class="notice">Demo only: the Join button saves your selection in this browser. It does not reserve an official room, collect money, or guarantee a prize.</div>
+  </section>
+
+  <section id="maps">
+    <div class="sectionhead">
+      <div>
+        <h2>🗺️ Maps & Game Modes</h2>
+        <div class="sub">Select a mode to see the suggested player format.</div>
+      </div>
+    </div>
+    <div class="pills" id="modePills">
+      <button class="pill active" data-mode="solo">Solo</button>
+      <button class="pill" data-mode="duo">Duo</button>
+      <button class="pill" data-mode="squad">Squad</button>
+      <button class="pill" data-mode="lonewolf">Lone Wolf</button>
+      <button class="pill" data-mode="clash">Clash Squad</button>
+    </div>
+    <div class="mapgrid" id="mapResults"></div>
+    <div class="notice">Map availability, room capacity and match settings depend on the selected game mode and the current Free Fire version. Confirm the exact map and settings before publishing a real event.</div>
+  </section>
+
+  <section id="rules">
+    <div class="sectionhead">
+      <div>
+        <h2>📜 Rules & Regulations</h2>
+        <div class="sub">Organizer should confirm and publish final rules before registrations open.</div>
+      </div>
+    </div>
+    <div class="rulesgrid">
+      <div class="rules">
+        <h3>🎮 General Rules</h3>
+        <ol>
+          <li>Mobile devices only. PC emulators are prohibited for this event.</li>
+          <li>VPN usage is prohibited. Use a stable local internet connection.</li>
+          <li>Gun attributes must be turned OFF for equal weapon performance, if supported by the selected mode.</li>
+          <li>Revival settings follow the announced room rules and selected game mode.</li>
+          <li>Players must enter the lobby on time. Late entry may be refused by the organizer.</li>
+          <li>Do not use cheats, hacks, exploits or unauthorized third-party tools.</li>
+          <li>Follow the organizer's instructions and maintain respectful conduct.</li>
+        </ol>
+      </div>
+      <div class="rules">
+        <h3>🕒 Room & Match Rules</h3>
+        <ol>
+          <li>Room ID and password should be shared in the official group or lobby 5–15 minutes before match time.</li>
+          <li>Players must use their registered in-game name and correct team details.</li>
+          <li>Check the selected map, mode, team size and room settings before the match.</li>
+          <li>Report disconnections or disputes to the organizer immediately.</li>
+          <li>Kill points and placement determine advancement when specified in the event format.</li>
+          <li>Organizer decisions and dispute procedures should be published before the event.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="format">
+    <div class="sectionhead">
+      <div>
+        <h2>🏆 Tournament Format</h2>
+        <div class="sub">Based on the group-stage format you provided.</div>
+      </div>
+    </div>
+    <div class="rules">
+      <div class="round">
+        <div class="number">01</div>
+        <div><h3>Group Stage</h3><p>Four groups play one Battle Royale match each. The top four teams from each group advance.</p></div>
+      </div>
+      <div class="round">
+        <div class="number">02</div>
+        <div><h3>Second Round</h3><p>Qualified teams from Groups A and B compete; qualified teams from Groups C and D compete. The top two teams in each match advance.</p></div>
+      </div>
+      <div class="round">
+        <div class="number">03</div>
+        <div><h3>Clash Squad Semi-Finals</h3><p>Teams that advance from the second round compete in Clash Squad matches to decide the finalists.</p></div>
+      </div>
+      <div class="round">
+        <div class="number">04</div>
+        <div><h3>Grand Final</h3><p>The two finalists play a Clash Squad match to determine the champion.</p></div>
+      </div>
+    </div>
+    <div class="notice"><strong>Important:</strong> The group-stage format above is intended for team tournaments. Lone Wolf 1v1 and Duo 2v2 should have their own match brackets. Define tie-breakers, scoring, disqualification, refunds and prize conditions in writing before accepting entries.</div>
+  </section>
+
+  <section id="my">
+    <div class="sectionhead">
+      <div>
+        <h2>🎯 My Tournaments</h2>
+        <div class="sub">Your locally saved tournament selections.</div>
+      </div>
+      <button class="btn secondary" id="clearJoins">Clear selections</button>
+    </div>
+    <div id="myTournaments" class="mylist">
+      <div class="empty">Loading your tournaments...</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <strong>🔥 FF COMMUNITY</strong><br>
+  Community tournament demo. Not affiliated with or endorsed by Garena.<br>
+  © 2026 FF COMMUNITY. All rights reserved.
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Keep this check if your existing login system uses this token.
+  const token = localStorage.getItem("ffTournamentToken");
+  if (!token) {
+    window.location.replace("/");
+    return;
+  }
+
+  const tournaments = {
+    lonewolf: {name:"Lone Wolf Duel", mode:"1v1", fee:"₹30 display fee", prize:"₹25 display prize"},
+    duo: {name:"Duo Clash", mode:"2v2", fee:"₹50 display fee", prize:"₹40 display prize"},
+    solo: {name:"Solo Survival", mode:"Solo Battle Royale", fee:"Free demo", prize:"Demo only"},
+    duobr: {name:"Duo Survival", mode:"Duo Battle Royale", fee:"Free demo", prize:"Demo only"},
+    squad: {name:"Squad Championship", mode:"Squad Battle Royale", fee:"Free demo", prize:"Demo only"},
+    clash: {name:"Clash Squad Finals", mode:"Clash Squad", fee:"Free demo", prize:"Demo only"}
+  };
+
+  const modes = {
+    solo: [
+      {icon:"🪂", title:"Solo Battle Royale", text:"One player per team. Up to 50 players in this demo format; confirm actual room limits."},
+      {icon:"🗺️", title:"Full Map", text:"Choose a supported Battle Royale map and announce it before registration."}
+    ],
+    duo: [
+      {icon:"👥", title:"Duo Battle Royale", text:"Two players per team. Placement and kill points can decide advancement."},
+      {icon:"🗺️", title:"Full Map", text:"Map and room capacity depend on the current game mode and version."}
+    ],
+    squad: [
+      {icon:"🛡️", title:"Squad Battle Royale", text:"Four players per team, with a substitute only if the organizer allows it."},
+      {icon:"🏆", title:"Group Stage", text:"Use four groups, then qualifying rounds and finals as announced."}
+    ],
+    lonewolf: [
+      {icon:"🐺", title:"Lone Wolf 1v1", text:"One player versus one player. Publish the exact round and winner rules."},
+      {icon:"⚔️", title:"Duel Bracket", text:"A knockout bracket is suitable for organizing multiple 1v1 matches."}
+    ],
+    clash: [
+      {icon:"💥", title:"Clash Squad", text:"Team-based rounds. Announce the number of rounds and win condition."},
+      {icon:"🏅", title:"Finals", text:"Use a semi-final and final bracket for qualified teams."}
+    ]
+  };
+
+  const $ = id => document.getElementById(id);
+  const KEY = "ffJoinedTournaments";
+  let toastTimer;
+
+  function getJoined() {
+    try {
+      const value = JSON.parse(localStorage.getItem(KEY) || "[]");
+      return Array.isArray(value) ? value.filter(id => tournaments[id]) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function notify(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.style.display = "none", 2800);
+  }
+
+  function renderJoined() {
+    const box = $("myTournaments");
+    const joined = getJoined();
+    box.replaceChildren();
+
+    if (joined.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "You have not joined any tournaments yet. Choose a tournament above!";
+      box.appendChild(empty);
+      return;
+    }
+
+    joined.forEach(id => {
+      const item = tournaments[id];
+      const card = document.createElement("div");
+      card.className = "joined";
+
+      const name = document.createElement("strong");
+      name.textContent = "🔥 " + item.name;
+
+      const details = document.createElement("span");
+      details.textContent = item.mode + " · " + item.fee + " · " + item.prize;
+
+      card.append(name, details);
+      box.appendChild(card);
+    });
+  }
+
+  document.querySelectorAll(".join").forEach(button => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.id;
+      if (!tournaments[id]) return;
+
+      const joined = getJoined();
+      if (joined.includes(id)) {
+        notify("You already selected this tournament.");
+        return;
+      }
+
+      joined.push(id);
+      localStorage.setItem(KEY, JSON.stringify(joined));
+      renderJoined();
+      notify("Tournament saved in My Tournaments!");
+    });
+  });
+
+  $("clearJoins").addEventListener("click", () => {
+    localStorage.removeItem(KEY);
+    renderJoined();
+    notify("Saved selections cleared.");
+  });
+
+  $("modePills").querySelectorAll(".pill").forEach(button => {
+    button.addEventListener("click", () => {
+      $("modePills").querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+      button.classList.add("active");
+      renderModes(button.dataset.mode);
+    });
+  });
+
+  function renderModes(mode) {
+    const box = $("mapResults");
+    box.replaceChildren();
+
+    (modes[mode] || modes.solo).forEach(info => {
+      const card = document.createElement("article");
+      card.className = "mapcard";
+
+      const icon = document.createElement("div");
+      icon.className = "mapemoji";
+      icon.textContent = info.icon;
+
+      const title = document.createElement("h3");
+      title.textContent = info.title;
+
+      const desc = document.createElement("p");
+      desc.textContent = info.text;
+
+      card.append(icon, title, desc);
+      box.appendChild(card);
+    });
+  }
+
+  $("logout").addEventListener("click", event => {
+    event.preventDefault();
+    localStorage.removeItem("ffTournamentToken");
+    window.location.href = "/";
+  });
+
+  renderModes("solo");
+  renderJoined();
+})();
+</script>
+</body>
+</html>
